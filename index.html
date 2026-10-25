@@ -2,178 +2,698 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#173d31">
 <title>Phuket Property Market</title>
+
 <script src="config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <style>
-:root{--g:#173d31;--gold:#c8a76b;--bg:#f7f6ef;--ink:#20362a;--muted:#788378;--line:#e2e6dc}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px system-ui,sans-serif}
-button,input,select,textarea{font:inherit}button,a{cursor:pointer}a{color:inherit;text-decoration:none}
-header{display:flex;justify-content:space-between;align-items:center;padding:16px 5%;background:white;border-bottom:1px solid var(--line);gap:10px}
-.brand{font-weight:900;letter-spacing:1px;color:var(--g)}.brand b{color:var(--gold)}
-nav{display:flex;gap:7px;flex-wrap:wrap;align-items:center}
-button{border:0;border-radius:4px;padding:11px 14px;font-weight:700;font-size:12px}
-.green{background:var(--g);color:white}.gold{background:var(--gold);color:#20362a}.pale{background:#edf1e9;color:var(--g)}
-.hero{padding:65px 8%;background:var(--g);color:white}
-.kicker{font-size:10px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:#b0c3ae}
-h1{font-size:clamp(43px,8vw,76px);line-height:1.04;letter-spacing:-3px;margin:20px 0}
-h1 em,h2 em{font-family:Georgia,serif;font-weight:400;color:var(--gold)}
-.hero p{max-width:520px;line-height:1.8;color:#c8d7ca}
-main{max-width:1100px;margin:auto;padding:0 20px}
-.search{position:relative;margin:-18px 0 45px;background:white;border:1px solid var(--line);display:grid;grid-template-columns:2fr 1fr 1fr auto;box-shadow:0 10px 30px #173d3110}
-.search label{font-size:9px;color:var(--muted);font-weight:800;letter-spacing:1px;padding:13px;border-right:1px solid var(--line)}
-.search input,.search select{display:block;width:100%;padding-top:8px;border:0;background:white;outline:none;font-size:12px;color:var(--ink)}
-.search button{border-radius:0}
-.heading{display:flex;justify-content:space-between;align-items:end;gap:15px;margin-bottom:20px}
-h2{font-size:clamp(27px,4vw,39px);letter-spacing:-1px;margin:8px 0}
-.muted{font-size:12px;color:var(--muted);line-height:1.7}
-.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:17px;margin:20px 0 50px}
-.card{background:white;border:1px solid var(--line);overflow:hidden;min-width:0}
-.cover{height:175px;background:linear-gradient(135deg,#edf0e6,#d7e1d4);display:grid;place-items:center;position:relative}
-.cover img{width:100%;height:100%;object-fit:cover}
-.nophoto{font-size:45px;color:#91a58f}
-.badge{position:absolute;top:10px;left:10px;background:var(--g);color:white;padding:7px;font-size:9px;font-weight:800}
-.body{padding:16px}.type{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px}
-.card h3{font-size:17px;line-height:1.4;margin:8px 0}.price{font-size:20px;font-weight:850;color:var(--g);margin:13px 0}
-.price small{font-size:11px;font-weight:500;color:var(--muted)}
-.actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:14px}
-.actions a,.actions button{font-size:10px;padding:9px 10px}
-section.panel{background:white;border:1px solid var(--line);padding:20px;margin:25px 0}
-form.fields{display:grid;grid-template-columns:1fr 1fr;gap:13px}
-.fields label{display:flex;flex-direction:column;gap:7px;font-size:10px;font-weight:800;color:var(--muted)}
-.fields input,.fields select,.fields textarea{border:1px solid var(--line);padding:12px;width:100%;background:white;color:var(--ink);border-radius:3px;font-size:13px}
-.wide{grid-column:1/-1}.fields textarea{min-height:110px;resize:vertical}
-.fields button{grid-column:1/-1}.msg{font-size:12px;line-height:1.7;color:var(--g);margin-top:12px}.err{color:#a33f32}
-footer{margin-top:40px;padding:26px 5%;background:white;border-top:1px solid var(--line);font-size:11px;color:var(--muted)}
-@media(max-width:740px){header{padding:13px;align-items:flex-start}.brand{font-size:12px}nav{justify-content:flex-end}nav button{padding:9px;font-size:10px}.hero{padding:45px 22px}h1{letter-spacing:-2px}main{padding:0 13px}.search{grid-template-columns:1fr 1fr}.search label{padding:10px}.search label:nth-child(2){border-right:0}.search button{grid-column:1/-1}.grid{grid-template-columns:1fr}.cover{height:210px}.heading{align-items:flex-start;flex-direction:column}form.fields{grid-template-columns:1fr}.wide,.fields button{grid-column:auto}}
+:root {
+  --green: #173d31;
+  --green2: #244f40;
+  --gold: #c8a76b;
+  --bg: #f7f6ef;
+  --ink: #20362a;
+  --muted: #788378;
+  --line: #e2e6dc;
+  --white: #fff;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font: 15px/1.6 system-ui, sans-serif;
+}
+body.modal-open { overflow: hidden; }
+[hidden] { display: none !important; }
+button, input, textarea, select { font: inherit; }
+button, a { cursor: pointer; }
+button {
+  border: 0;
+  border-radius: 4px;
+  padding: 11px 14px;
+  font-size: 12px;
+  font-weight: 750;
+}
+a { color: inherit; text-decoration: none; }
+button:focus-visible, a:focus-visible {
+  outline: 3px solid var(--gold);
+  outline-offset: 3px;
+}
+.green { background: var(--green); color: white; }
+.green:hover { background: var(--green2); }
+.gold { background: var(--gold); color: var(--ink); }
+.pale { background: #edf1e9; color: var(--green); }
+
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 5%;
+  background: white;
+  border-bottom: 1px solid var(--line);
+}
+.brand {
+  font-size: 15px;
+  font-weight: 900;
+  letter-spacing: 1px;
+  color: var(--green);
+  white-space: nowrap;
+}
+.brand b { color: var(--gold); }
+nav { display: flex; gap: 7px; flex-wrap: wrap; }
+
+.hero {
+  padding: 65px 8% 75px;
+  color: white;
+  background:
+    radial-gradient(ellipse at 90% 15%, #315c47, transparent 40%),
+    var(--green);
+}
+.kicker {
+  color: #91a795;
+  font-size: 10px;
+  font-weight: 850;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+.hero .kicker { color: #b0c3ae; }
+h1 {
+  margin: 20px 0;
+  font-size: clamp(42px, 8vw, 76px);
+  letter-spacing: -3px;
+  line-height: 1.04;
+}
+h1 em, h2 em {
+  color: var(--gold);
+  font-family: Georgia, serif;
+  font-weight: 400;
+}
+.hero p {
+  max-width: 550px;
+  color: #c8d7ca;
+  line-height: 1.9;
+  margin-bottom: 25px;
+}
+main { max-width: 1180px; margin: auto; padding: 0 22px; }
+
+.search {
+  position: relative;
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr auto;
+  margin: -19px 0 45px;
+  background: white;
+  border: 1px solid var(--line);
+  box-shadow: 0 10px 30px #173d3110;
+}
+.search label {
+  padding: 12px;
+  border-right: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 9px;
+  font-weight: 850;
+  letter-spacing: 1px;
+}
+.search input, .search select {
+  display: block;
+  width: 100%;
+  padding-top: 8px;
+  border: 0;
+  outline: none;
+  background: white;
+  color: var(--ink);
+  font-size: 12px;
+}
+.search button { border-radius: 0; }
+
+.heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+h2 {
+  margin: 8px 0;
+  font-size: clamp(27px, 4vw, 39px);
+  letter-spacing: -1px;
+  line-height: 1.2;
+}
+.muted {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.7;
+}
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+  margin: 20px 0 50px;
+}
+.card {
+  min-width: 0;
+  overflow: hidden;
+  background: white;
+  border: 1px solid var(--line);
+  cursor: pointer;
+  transition: transform .18s, box-shadow .18s;
+}
+.card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 30px #173d3112;
+}
+.cover {
+  position: relative;
+  display: grid;
+  place-items: center;
+  height: 210px;
+  overflow: hidden;
+  background: linear-gradient(135deg, #edf0e6, #d7e1d4);
+}
+.cover img { width: 100%; height: 100%; object-fit: cover; }
+.nophoto { color: #91a58f; font-size: 45px; }
+.badge {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  padding: 7px 9px;
+  background: var(--green);
+  color: white;
+  font-size: 9px;
+  font-weight: 850;
+}
+.body { padding: 17px; }
+.type {
+  color: var(--muted);
+  font-size: 10px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+.card h3 { margin: 8px 0; font-size: 17px; line-height: 1.4; }
+.price {
+  margin: 13px 0;
+  color: var(--green);
+  font-size: 20px;
+  font-weight: 900;
+}
+.price small { color: var(--muted); font-size: 11px; font-weight: 500; }
+.card-desc {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+}
+.actions { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 14px; }
+.actions a, .actions button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 9px 10px;
+  font-size: 10px;
+}
+.empty {
+  grid-column: 1/-1;
+  padding: 25px;
+  background: white;
+  border: 1px solid var(--line);
+}
+
+.panel {
+  margin: 25px 0;
+  padding: 22px;
+  background: white;
+  border: 1px solid var(--line);
+}
+.fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+.fields label {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 850;
+}
+.fields input, .fields select, .fields textarea {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: white;
+  color: var(--ink);
+  font-size: 13px;
+}
+.fields textarea { min-height: 110px; resize: vertical; }
+.wide, .fields button { grid-column: 1/-1; }
+.msg { margin: 12px 0; color: var(--green); font-size: 12px; }
+.err { color: #a33f32; }
+.preview-grid { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 9px; }
+.preview-grid img {
+  width: 65px;
+  height: 55px;
+  object-fit: cover;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+}
+footer {
+  margin-top: 40px;
+  padding: 28px 5%;
+  background: white;
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 11px;
+}
+
+/* PROPERTY DETAILS WINDOW */
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  overflow: auto;
+  background: #071812d9;
+}
+.detail-modal {
+  width: min(100%, 1050px);
+  max-height: calc(100dvh - 40px);
+  overflow: auto;
+  border-radius: 6px;
+  background: white;
+  box-shadow: 0 25px 80px #0005;
+}
+.modal-top {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 11px 16px;
+  border-bottom: 1px solid var(--line);
+  background: white;
+}
+.modal-top strong {
+  color: var(--green);
+  font-size: 11px;
+  letter-spacing: 1px;
+}
+.close-btn {
+  padding: 5px 11px;
+  background: #edf1e9;
+  color: var(--green);
+  font-size: 22px;
+}
+.detail-layout {
+  display: grid;
+  grid-template-columns: 1.1fr .9fr;
+}
+.gallery { min-width: 0; background: #111b15; }
+.gallery-main {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 450px;
+  background: #111b15;
+}
+.gallery-main img { width: 100%; height: 100%; object-fit: contain; }
+.gallery-empty { color: #c6d1c8; font-size: 65px; }
+.gallery-arrow {
+  position: absolute;
+  top: 50%;
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  padding: 0;
+  transform: translateY(-50%);
+  border-radius: 50%;
+  background: #ffffffdf;
+  color: var(--green);
+  font-size: 24px;
+}
+.gallery-arrow.prev { left: 12px; }
+.gallery-arrow.next { right: 12px; }
+.gallery-count {
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+  padding: 5px 9px;
+  border-radius: 3px;
+  background: #071812bf;
+  color: white;
+  font-size: 11px;
+}
+.thumbs {
+  display: flex;
+  gap: 8px;
+  padding: 10px;
+  overflow-x: auto;
+  background: #17251e;
+}
+.thumb {
+  flex: 0 0 76px;
+  height: 58px;
+  overflow: hidden;
+  padding: 0;
+  border: 2px solid transparent;
+  background: #27382e;
+}
+.thumb img { width: 100%; height: 100%; object-fit: cover; }
+.thumb.active { border-color: var(--gold); }
+.detail-content { min-width: 0; padding: 26px; }
+.detail-content h2 { overflow-wrap: anywhere; font-size: clamp(24px, 3vw, 35px); }
+.detail-price { margin: 12px 0 18px; color: var(--green); font-size: 28px; font-weight: 900; }
+.detail-price small { color: var(--muted); font-size: 13px; font-weight: 500; }
+.facts { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 8px; margin: 20px 0; }
+.fact { padding: 10px; border: 1px solid var(--line); background: var(--bg); }
+.fact b { display: block; color: var(--green); font-size: 17px; }
+.fact span { color: var(--muted); font-size: 9px; text-transform: uppercase; letter-spacing: .6px; }
+.detail-description { white-space: pre-wrap; overflow-wrap: anywhere; font-size: 13px; line-height: 1.8; }
+.amenity-list { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 8px; }
+.amenity {
+  padding: 6px 9px;
+  border: 1px solid var(--line);
+  border-radius: 30px;
+  background: #f8f9f5;
+  font-size: 11px;
+}
+.contact-box { margin-top: 22px; padding-top: 18px; border-top: 1px solid var(--line); }
+.contact-box strong { display: block; margin-bottom: 4px; }
+
+@media(max-width:850px) {
+  .grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
+  .detail-layout { grid-template-columns: 1fr; }
+  .gallery-main { height: min(55vw,430px); min-height: 250px; }
+  .detail-content { padding: 22px; }
+}
+@media(max-width:600px) {
+  header { align-items: flex-start; padding: 12px; }
+  .brand { padding-top: 8px; font-size: 11px; }
+  nav { justify-content: flex-end; gap: 5px; }
+  nav button { padding: 9px; font-size: 10px; }
+  .hero { padding: 45px 22px 58px; }
+  h1 { letter-spacing: -2px; }
+  main { padding: 0 13px; }
+  .search { grid-template-columns: 1fr 1fr; margin-bottom: 35px; }
+  .search label { padding: 10px; }
+  .search label:nth-child(2) { border-right: 0; }
+  .search button { grid-column: 1/-1; }
+  .grid { grid-template-columns: 1fr; gap: 14px; }
+  .cover { height: 220px; }
+  .heading { align-items: flex-start; flex-direction: column; }
+  .fields { grid-template-columns: 1fr; }
+  .wide, .fields button { grid-column: 1; }
+  .panel { padding: 16px; }
+  .backdrop { padding: 0; }
+  .detail-modal { max-height: 100dvh; height: 100dvh; border-radius: 0; }
+  .gallery-main { height: 40vh; min-height: 230px; }
+  .detail-content { padding: 18px 15px; }
+  .fact { padding: 8px 6px; }
+  .fact b { font-size: 15px; }
+  .fact span { font-size: 8px; }
+}
 </style>
 </head>
+
 <body>
 <header>
-<a class="brand" href="#">PHUKET<b>.</b> PROPERTY</a>
-<nav>
-<button class="pale" id="login">Log in</button>
-<button class="pale" id="signup">Sign up</button>
-<button class="pale" id="logout" hidden>Log out</button>
-<button class="green" id="post">＋ Post property</button>
-</nav>
+  <a class="brand" href="#">PHUKET<b>.</b> PROPERTY</a>
+  <nav>
+    <button class="pale" id="login" type="button">Log in</button>
+    <button class="pale" id="signup" type="button">Sign up</button>
+    <button class="pale" id="logout" type="button" hidden>Log out</button>
+    <button class="green" id="post" type="button">＋ Post property</button>
+  </nav>
 </header>
+
 <section class="hero">
-<div class="kicker">PHUKET · THAILAND · PROPERTY MARKETPLACE</div>
-<h1>Find your place.<br><em>Make it yours.</em></h1>
-<p>Find a home to rent or buy, or publish your own property. Create an account and your listing goes live immediately—no approval queue.</p>
-<button class="gold" onclick="document.querySelector('#properties').scrollIntoView({behavior:'smooth'})">Explore properties ↗</button>
+  <div class="kicker">PHUKET · THAILAND · PROPERTY MARKETPLACE</div>
+  <h1>Find your place.<br><em>Make it yours.</em></h1>
+  <p>Find a home to rent or buy, or publish your own property. Explore condos, villas, houses and land across Phuket.</p>
+  <button class="gold" id="explore" type="button">Explore properties ↗</button>
 </section>
+
 <main>
-<form class="search" id="search">
-<label>SEARCH AREA OR KEYWORD<input id="q" placeholder="Rawai, condo, villa…"></label>
-<label>OFFER<select id="fOffer"><option value="">Rent or sale</option><option value="rent">For rent</option><option value="sale">For sale</option></select></label>
-<label>PROPERTY TYPE<select id="fType"><option value="">All types</option><option>Condo</option><option>Villa</option><option>House</option><option>Land</option><option>Townhouse</option><option>Apartment</option><option>Commercial</option><option>Other</option></select></label>
-<button class="gold">Search ↗</button>
-</form>
-<div id="accountMsg" class="msg"></div>
-<section id="postPanel" class="panel" hidden>
-<div class="kicker">INSTANT PUBLISHING</div><h2 id="formTitle">Post your property.</h2>
-<p class="muted">Fill in the details. Your listing becomes public immediately after submission.</p>
-<form class="fields" id="listingForm">
-<label class="wide">PROPERTY TITLE *<input id="title" required maxlength="120" placeholder="2-bedroom condo in Rawai"></label>
-<label>OFFER TYPE<select id="offer"><option value="rent">For rent</option><option value="sale">For sale</option></select></label>
-<label>PROPERTY TYPE<select id="ptype"><option>Condo</option><option>Villa</option><option>House</option><option>Land</option><option>Townhouse</option><option>Apartment</option><option>Commercial</option><option>Other</option></select></label>
-<label class="wide">AREA / LOCATION *<input id="location" required maxlength="120" placeholder="Rawai, Phuket"></label>
-<label>PRICE IN THB *<input id="price" type="number" min="1" required></label>
-<label id="periodLabel">RENTAL PERIOD<select id="period"><option value="month">Per month</option><option value="week">Per week</option><option value="day">Per day</option><option value="year">Per year</option></select></label>
-<label>BEDROOMS<input id="beds" type="number" min="0" max="100" value="1"></label>
-<label>BATHROOMS<input id="baths" type="number" min="0" max="100" value="1"></label>
-<label>SIZE (SQ. M.)<input id="size" type="number" min="0"></label>
-<label>CONTACT NAME *<input id="contact" required maxlength="80"></label>
-<label class="wide">PHONE / WHATSAPP *<input id="phone" required maxlength="40" placeholder="+66…"></label>
-<label class="wide">DESCRIPTION *<textarea id="description" required minlength="20" maxlength="5000" placeholder="Describe the property, features and rental or sale terms."></textarea></label>
-<label class="wide">AMENITIES<input id="amenities" placeholder="Pool, parking, gym — separate with commas"></label>
-<label class="wide">PHOTOS (OPTIONAL, UP TO 6)<input id="photos" type="file" accept="image/*" multiple><span class="muted">Images are resized to fit within 1280 × 720 pixels before uploading. Upload only photos you have permission to use.</span><div id="preview" class="muted"></div></label>
-<button class="green" id="save">Publish listing ↗</button>
-</form><div id="formMsg" class="msg"></div>
-</section>
-<section id="properties">
-<div class="heading"><div><div class="kicker">COMMUNITY LISTINGS</div><h2>Explore properties<span style="color:var(--gold)">.</span></h2><p class="muted">Listings are user-submitted. Always verify details before making payments.</p></div><span class="muted" id="status">Connecting…</span></div>
-<div id="count" class="muted"></div><div class="grid" id="grid"><p class="muted">Loading properties…</p></div>
-</section>
-<section class="panel"><div class="kicker">YOUR PROPERTY, YOUR WAY</div><h2>Have a place to share?</h2><p class="muted">Sign up, add your property details, and publish instantly.</p><button class="green" onclick="document.querySelector('#postPanel').hidden=false;document.querySelector('#postPanel').scrollIntoView({behavior:'smooth'})">Post a property ↗</button></section>
+  <form class="search" id="search">
+    <label>SEARCH AREA OR KEYWORD
+      <input id="q" placeholder="Rawai, condo, villa…" autocomplete="off">
+    </label>
+    <label>OFFER
+      <select id="fOffer">
+        <option value="">Rent or sale</option>
+        <option value="rent">For rent</option>
+        <option value="sale">For sale</option>
+      </select>
+    </label>
+    <label>PROPERTY TYPE
+      <select id="fType">
+        <option value="">All types</option>
+        <option>Condo</option><option>Villa</option><option>House</option>
+        <option>Land</option><option>Townhouse</option><option>Apartment</option>
+        <option>Commercial</option><option>Other</option>
+      </select>
+    </label>
+    <button class="gold" type="submit">Search ↗</button>
+  </form>
+
+  <div id="accountMsg" class="msg" role="status"></div>
+
+  <section class="panel" id="postPanel" hidden>
+    <div class="kicker">INSTANT PUBLISHING</div>
+    <h2>Post your property.</h2>
+    <p class="muted">Fill in the details. Your listing will be published after submission.</p>
+
+    <form class="fields" id="listingForm">
+      <label class="wide">PROPERTY TITLE *
+        <input id="title" required maxlength="120" placeholder="2-bedroom condo in Rawai">
+      </label>
+      <label>OFFER TYPE
+        <select id="offer"><option value="rent">For rent</option><option value="sale">For sale</option></select>
+      </label>
+      <label>PROPERTY TYPE
+        <select id="ptype">
+          <option>Condo</option><option>Villa</option><option>House</option>
+          <option>Land</option><option>Townhouse</option><option>Apartment</option>
+          <option>Commercial</option><option>Other</option>
+        </select>
+      </label>
+      <label class="wide">AREA / LOCATION *
+        <input id="location" required maxlength="120" placeholder="Rawai, Phuket">
+      </label>
+      <label>PRICE IN THB *
+        <input id="price" type="number" min="1" step="1" required>
+      </label>
+      <label id="periodLabel">RENTAL PERIOD
+        <select id="period">
+          <option value="month">Per month</option><option value="week">Per week</option>
+          <option value="day">Per day</option><option value="year">Per year</option>
+        </select>
+      </label>
+      <label>BEDROOMS <input id="beds" type="number" min="0" max="100" value="1"></label>
+      <label>BATHROOMS <input id="baths" type="number" min="0" max="100" value="1"></label>
+      <label>SIZE (SQ. M.) <input id="size" type="number" min="0" step="0.1"></label>
+      <label>CONTACT NAME * <input id="contact" required maxlength="80"></label>
+      <label class="wide">PHONE / WHATSAPP *
+        <input id="phone" required maxlength="40" placeholder="+66…" autocomplete="tel">
+      </label>
+      <label class="wide">DESCRIPTION *
+        <textarea id="description" required minlength="20" maxlength="5000" placeholder="Describe the property, its features and rental or sale terms."></textarea>
+      </label>
+      <label class="wide">AMENITIES
+        <input id="amenities" placeholder="Pool, parking, gym — separate with commas">
+      </label>
+      <label class="wide">PHOTOS — UP TO 10
+        <input id="photos" type="file" accept="image/*" multiple>
+        <span class="muted">Up to 10 photos. Each original photo must be under 15 MB. Images are resized before upload.</span>
+        <div id="preview" class="muted"></div>
+      </label>
+      <button class="green" id="save" type="submit">Publish listing ↗</button>
+    </form>
+    <div id="formMsg" class="msg" role="status"></div>
+  </section>
+
+  <section id="properties">
+    <div class="heading">
+      <div>
+        <div class="kicker">COMMUNITY LISTINGS</div>
+        <h2>Explore properties<span style="color:var(--gold)">.</span></h2>
+        <p class="muted">Tap any listing to open its full details and photo gallery.</p>
+      </div>
+      <span class="muted" id="status">Connecting…</span>
+    </div>
+    <div id="count" class="muted"></div>
+    <div class="grid" id="grid"><p class="muted">Loading properties…</p></div>
+  </section>
+
+  <section class="panel">
+    <div class="kicker">YOUR PROPERTY, YOUR WAY</div>
+    <h2>Have a place to share?</h2>
+    <p class="muted">Sign up, add your property details and publish.</p>
+    <button class="green" id="postBottom" type="button">Post a property ↗</button>
+  </section>
 </main>
-<footer>PHUKET PROPERTY MARKET · Community listings across Phuket, Thailand.<br><br>Listings are not independently verified. Confirm ownership, terms, availability, and property condition before paying a deposit.</footer>
+
+<footer>
+  PHUKET PROPERTY MARKET · Community listings across Phuket, Thailand.<br><br>
+  Listings are not independently verified. Confirm ownership, terms, availability and property condition before paying a deposit.
+</footer>
+
+<!-- Full property detail window -->
+<div class="backdrop" id="detailBackdrop" hidden>
+  <section class="detail-modal" role="dialog" aria-modal="true" aria-labelledby="detailTitle">
+    <div class="modal-top">
+      <strong>PROPERTY DETAILS</strong>
+      <button class="close-btn" id="detailClose" type="button" aria-label="Close">×</button>
+    </div>
+    <div class="detail-layout">
+      <div class="gallery">
+        <div class="gallery-main" id="galleryMain"></div>
+        <div class="thumbs" id="thumbs"></div>
+      </div>
+      <div class="detail-content" id="detailContent"></div>
+    </div>
+  </section>
+</div>
+
 <script>
-const $=id=>document.getElementById(id);
-const ready=window.SUPABASE_URL&&window.SUPABASE_KEY&&!window.SUPABASE_KEY.includes("PASTE_");
-const db=ready&&window.supabase?window.supabase.createClient(window.SUPABASE_URL,window.SUPABASE_KEY):null;
-let user=null,rows=[],files=[];
-const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-const money=n=>"฿"+Number(n||0).toLocaleString("en-US",{maximumFractionDigits:0});
-function msg(id,text,error=false){$(id).textContent=text;$(id).className=error?"msg err":"msg";}
-async function syncUser(){if(!db)return;const {data}=await db.auth.getSession();user=data.session?.user||null;$("login").hidden=!!user;$("signup").hidden=!!user;$("logout").hidden=!user;}
-async function refresh(){
- if(!db){$("status").textContent="Needs setup";$("grid").innerHTML='<p class="muted">Website created. Add your Supabase connection in config.js to activate accounts and listings.</p>';return;}
- const {data,error}=await db.from("listings").select("*").order("created_at",{ascending:false}).limit(500);
- if(error){$("status").textContent="Database error";$("grid").textContent=error.message;return;}
- rows=data||[];$("status").textContent="Live marketplace";render();
+'use strict';
+
+const $ = id => document.getElementById(id);
+const connected = Boolean(
+  window.SUPABASE_URL &&
+  window.SUPABASE_KEY &&
+  window.supabase
+);
+const db = connected
+  ? window.supabase.createClient(window.SUPABASE_URL, window.SUPABASE_KEY)
+  : null;
+
+let user = null;
+let rows = [];
+let selectedFiles = [];
+let activeListing = null;
+let galleryIndex = 0;
+let previousFocus = null;
+
+const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({
+  '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'
+}[c]));
+
+const money = value => '฿' + Number(value || 0).toLocaleString('en-US', {
+  maximumFractionDigits: 0
+});
+
+const phoneDigits = value => String(value || '').replace(/\D/g, '');
+
+function setMsg(id, text, error = false) {
+  $(id).textContent = text;
+  $(id).className = error ? 'msg err' : 'msg';
 }
-function render(){
- const q=$("q").value.toLowerCase().trim(),offer=$("fOffer").value,type=$("fType").value;
- const a=rows.filter(x=>(!offer||x.offer_type===offer)&&(!type||x.property_type===type)&&(!q||[x.title,x.location,x.description,x.property_type,(x.amenities||[]).join(" ")].join(" ").toLowerCase().includes(q)));
- $("count").textContent=`${a.length} properties found`;
- $("grid").innerHTML=a.length?a.map(x=>`<article class="card"><div class="cover">${x.image_urls?.length?`<img loading="lazy" src="${esc(x.image_urls[0])}" alt="${esc(x.title)}">`:'<div class="nophoto">⌂</div>'}<span class="badge">${x.offer_type==="sale"?"FOR SALE":"FOR RENT"}</span></div><div class="body"><div class="type">${esc(x.property_type)} · ${esc(x.location)}</div><h3>${esc(x.title)}</h3><div class="muted">${x.bedrooms||0} bed · ${x.bathrooms||0} bath ${x.size_sqm?`· ${esc(x.size_sqm)} m²`:""}</div><div class="price">${money(x.price)} <small>${x.offer_type==="sale"?"total":"/ "+esc(x.price_period||"month")}</small></div><div class="muted">${esc(x.description)}</div><p class="muted">Contact: ${esc(x.contact_name)} · ${esc(x.contact_phone)}</p><div class="actions">${x.contact_phone?`<a class="green" target="_blank" rel="noopener" href="https://wa.me/${String(x.contact_phone).replace(/\D/g,"")}?text=${encodeURIComponent("Hello, I am interested in "+x.title+". Is it available?")}">WhatsApp ↗</a>`:""}${user&&x.user_id===user.id?`<button class="pale" onclick="deleteListing('${x.id}')">Delete my listing</button>`:""}</div></div></article>`).join(""):'<div class="muted">No listings yet. Be the first to publish a property!</div>';
+
+function photosOf(listing) {
+  return Array.isArray(listing.image_urls)
+    ? listing.image_urls.filter(url => typeof url === 'string' && /^https?:\/\//i.test(url))
+    : [];
 }
-async function auth(mode){
- if(!db){alert("First add your Supabase URL and publishable key in config.js.");return;}
- const email=prompt("Enter your email address:");if(!email)return;
- const password=prompt("Enter your password (at least 8 characters):");if(!password)return;
- try{
-  let r;
-  if(mode==="signup"){const name=prompt("Your name (shown in account only):")||"";r=await db.auth.signUp({email,password,options:{data:{full_name:name}}});}
-  else r=await db.auth.signInWithPassword({email,password});
-  if(r.error)throw r.error;
-  await syncUser();
-  msg("accountMsg",mode==="signup"&&!r.data.session?"Account created. Check your email to confirm, then log in.":"Successfully signed in.");
-  if(r.data.session){$("postPanel").hidden=false;$("postPanel").scrollIntoView({behavior:"smooth"});}
- }catch(e){msg("accountMsg",e.message,true);}
+
+function amenitiesOf(listing) {
+  if (Array.isArray(listing.amenities)) return listing.amenities;
+  if (typeof listing.amenities === 'string') return listing.amenities.split(',');
+  return [];
 }
-async function resize(file){
- if(!file.type.startsWith("image/")||file.size>15*1024*1024)throw Error("Use an image smaller than 15 MB.");
- const im=await createImageBitmap(file),s=Math.min(1,1280/im.width,720/im.height);
- const c=document.createElement("canvas");c.width=Math.round(im.width*s);c.height=Math.round(im.height*s);
- c.getContext("2d").drawImage(im,0,0,c.width,c.height);im.close();
- const b=await new Promise((ok,bad)=>c.toBlob(x=>x?ok(x):bad(Error("Could not resize image")),"image/webp",.82));
- if(b.size>3*1024*1024)throw Error("Resized photo is over 3 MB.");
- return new File([b],crypto.randomUUID()+".webp",{type:"image/webp"});
+
+function updateAuthButtons() {
+  $('login').hidden = Boolean(user);
+  $('signup').hidden = Boolean(user);
+  $('logout').hidden = !user;
 }
-async function publish(e){
- e.preventDefault();if(!db||!user){msg("formMsg","Log in first to publish a listing.",true);return;}
- if(files.length>6){msg("formMsg","Choose no more than 6 photos.",true);return;}
- const btn=$("save");btn.disabled=true;btn.textContent="Publishing…";
- try{
-  const id=crypto.randomUUID(),urls=[];
-  for(const f of files){const im=await resize(f),path=`${user.id}/${id}/${crypto.randomUUID()}.webp`;
-   const {error}=await db.storage.from("listing-photos").upload(path,im,{contentType:"image/webp"});
-   if(error)throw error;urls.push(db.storage.from("listing-photos").getPublicUrl(path).data.publicUrl);}
-  const data={id,user_id:user.id,title:$("title").value.trim(),description:$("description").value.trim(),offer_type:$("offer").value,property_type:$("ptype").value,location:$("location").value.trim(),price:Number($("price").value),price_period:$("offer").value==="sale"?"total":$("period").value,bedrooms:Number($("beds").value||0),bathrooms:Number($("baths").value||0),size_sqm:$("size").value?Number($("size").value):null,amenities:$("amenities").value.split(",").map(x=>x.trim()).filter(Boolean),contact_name:$("contact").value.trim(),contact_phone:$("phone").value.trim(),image_urls:urls};
-  const {error}=await db.from("listings").insert(data);if(error)throw error;
-  $("listingForm").reset();files=[];$("preview").textContent="";msg("formMsg","Published! Your listing is now visible.");await refresh();
- }catch(e){msg("formMsg",e.message||"Could not publish; check setup and try again.",true);}
- finally{btn.disabled=false;btn.textContent="Publish listing ↗";}
+
+async function syncUser() {
+  if (!db) return;
+  const {data, error} = await db.auth.getSession();
+  if (error) throw error;
+  user = data.session?.user || null;
+  updateAuthButtons();
 }
-async function deleteListing(id){
- if(!confirm("Delete your listing?"))return;
- const {error}=await db.from("listings").delete().eq("id",id).eq("user_id",user.id);
- if(error){alert(error.message);return;}await refresh();
+
+async function refresh() {
+  if (!db) {
+    $('status').textContent = 'Needs setup';
+    $('grid').innerHTML =
+      '<div class="empty muted">Supabase is not connected. Check config.js is deployed beside index.html.</div>';
+    return;
+  }
+
+  $('status').textContent = 'Loading…';
+
+  const {data, error} = await db
+    .from('listings')
+    .select('*')
+    .order('created_at', {ascending: false})
+    .limit(500);
+
+  if (error) {
+    $('status').textContent = 'Database error';
+    $('grid').innerHTML = `<div class="empty muted">Could not load listings: ${esc(error.message)}</div>`;
+    $('count').textContent = '';
+    return;
+  }
+
+  rows = data || [];
+  $('status').textContent = 'Live marketplace';
+  render();
 }
-$("login").onclick=()=>auth("login");$("signup").onclick=()=>auth("signup");
-$("logout").onclick=async()=>{await db.auth.signOut();await syncUser();await refresh();};
-$("post").onclick=()=>{if(!user){auth("login");return;}$("postPanel").hidden=false;$("postPanel").scrollIntoView({behavior:"smooth"});};
-$("search").onsubmit=e=>{e.preventDefault();render();};$("q").oninput=render;$("fOffer").onchange=render;$("fType").onchange=render;
-$("listingForm").onsubmit=publish;
-$("offer").onchange=()=>$("periodLabel").hidden=$("offer").value==="sale";
-$("photos").onchange=e=>{files=[...e.target.files].slice(0,6);$("preview").textContent=`${files.length} photo(s) selected. They will be resized to 720p before uploading.`;};
-(async()=>{if(!db){$("status").textContent="Needs setup";return;}await syncUser();await refresh();db.auth.onAuthStateChange(async()=>{await syncUser();});})();
-</script>
-</body>
-</html>
+
+function filteredListings() {
+  const query = $('q').value.toLowerCase().trim();
+  const offer = $('fOffer').value;
+  const type = $('fType').value;
+
+  return rows.filter(item => {
+    const searchText = [
+      item.title, item.location, item.description,
+      item.property_type, amenitiesOf(item).join(' ')
+    ].join(' ').toLowerCase();
+
+    return (!offer || item.offer_type === offer) &&
+      (!type || item.property_type === type) &&
+      (!query || searchText.includes(query));
+  });
+}
+
+function render() {
+  const listings = filteredListings();
+
+  $('count').textContent =
+    `${listings.length} ${listings.length === 1 ? 'property' : 'properties'} found`;
+
+  if (!listings.length) {
+    $('grid').innerHTML = '<div class="empty muted">No properties match your search.</div>';
+    return;
+  }
+
+  $('grid').innerHTML = listings.map(item => {
+    const images = photosOf(item);
+    const owner = Boolean(user && String(user.id) === String(item.user_id));
+    const phone = phoneDigits(item.contact_phone);
+
+    const imageHTML = images.length
+      ? `<img loading="lazy" src="${esc(images[0])}" alt="${esc(item.title || 'Property')}">`
+      : '<div class="nophoto">⌂</div>';
+
+    const whatsapp = phone
+      ? `<a class="green" data-no-open href="https://wa.me/${esc(phone)}?text=${encodeURIComponent('Hello, I am interested in ' + (item.title || 'your property') + '. Is it available?')}" target="_blank" rel="noopener noreferrer">WhatsApp ↗</a>`
+      : '';
+
+    const

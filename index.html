@@ -1,5 +1,4 @@
 
-
 <!doctype html>
 <html lang="en">
 <head>
@@ -9,15 +8,23 @@
 <title>Phuket Property Market</title>
 <script src="config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <style>
 :root{--g:#173d31;--gold:#c8a76b;--bg:#f7f6ef;--ink:#20362a;--muted:#788378;--line:#e2e6dc}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px system-ui,sans-serif}
-button,input,select,textarea{font:inherit}button,a{cursor:pointer}a{color:inherit;text-decoration:none}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px system-ui,sans-serif}
+button,input,select,textarea{font:inherit}
+button,a{cursor:pointer}
+a{color:inherit;text-decoration:none}
 header{display:flex;justify-content:space-between;align-items:center;padding:16px 5%;background:white;border-bottom:1px solid var(--line);gap:10px}
-.brand{font-weight:900;letter-spacing:1px;color:var(--g)}.brand b{color:var(--gold)}
+.brand{font-weight:900;letter-spacing:1px;color:var(--g)}
+.brand b{color:var(--gold)}
 nav{display:flex;gap:7px;flex-wrap:wrap;align-items:center}
 button{border:0;border-radius:4px;padding:11px 14px;font-weight:700;font-size:12px}
-.green{background:var(--g);color:white}.gold{background:var(--gold);color:#20362a}.pale{background:#edf1e9;color:var(--g)}
+.green{background:var(--g);color:white}
+.gold{background:var(--gold);color:#20362a}
+.pale{background:#edf1e9;color:var(--g)}
 .hero{padding:65px 8%;background:var(--g);color:white}
 .kicker{font-size:10px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:#b0c3ae}
 h1{font-size:clamp(43px,8vw,76px);line-height:1.04;letter-spacing:-3px;margin:20px 0}
@@ -32,26 +39,108 @@ main{max-width:1100px;margin:auto;padding:0 20px}
 h2{font-size:clamp(27px,4vw,39px);letter-spacing:-1px;margin:8px 0}
 .muted{font-size:12px;color:var(--muted);line-height:1.7}
 .grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:17px;margin:20px 0 50px}
-.card{background:white;border:1px solid var(--line);overflow:hidden;min-width:0}
+.card{background:white;border:1px solid var(--line);overflow:hidden;min-width:0;display:flex;flex-direction:column}
 .cover{height:175px;background:linear-gradient(135deg,#edf0e6,#d7e1d4);display:grid;place-items:center;position:relative}
 .cover img{width:100%;height:100%;object-fit:cover}
 .nophoto{font-size:45px;color:#91a58f}
 .badge{position:absolute;top:10px;left:10px;background:var(--g);color:white;padding:7px;font-size:9px;font-weight:800}
-.body{padding:16px}.type{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px}
-.card h3{font-size:17px;line-height:1.4;margin:8px 0}.price{font-size:20px;font-weight:850;color:var(--g);margin:13px 0}
+.body{padding:16px;display:flex;flex-direction:column;flex:1}
+.type{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px}
+.card h3{font-size:17px;line-height:1.4;margin:8px 0}
+.price{font-size:20px;font-weight:850;color:var(--g);margin:13px 0}
 .price small{font-size:11px;font-weight:500;color:var(--muted)}
+.card-description{white-space:pre-line;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
 .actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:14px}
 .actions a,.actions button{font-size:10px;padding:9px 10px}
+.view-listing{background:var(--g);color:#fff}
 section.panel{background:white;border:1px solid var(--line);padding:20px;margin:25px 0}
 form.fields{display:grid;grid-template-columns:1fr 1fr;gap:13px}
 .fields label{display:flex;flex-direction:column;gap:7px;font-size:10px;font-weight:800;color:var(--muted)}
 .fields input,.fields select,.fields textarea{border:1px solid var(--line);padding:12px;width:100%;background:white;color:var(--ink);border-radius:3px;font-size:13px}
-.wide{grid-column:1/-1}.fields textarea{min-height:110px;resize:vertical}
-.fields button{grid-column:1/-1}.msg{font-size:12px;line-height:1.7;color:var(--g);margin-top:12px}.err{color:#a33f32}
+.wide{grid-column:1/-1}
+.fields textarea{min-height:110px;resize:vertical}
+.fields button{grid-column:1/-1}
+.msg{font-size:12px;line-height:1.7;color:var(--g);margin-top:12px}
+.err{color:#a33f32}
 footer{margin-top:40px;padding:26px 5%;background:white;border-top:1px solid var(--line);font-size:11px;color:var(--muted)}
-@media(max-width:740px){header{padding:13px;align-items:flex-start}.brand{font-size:12px}nav{justify-content:flex-end}nav button{padding:9px;font-size:10px}.hero{padding:45px 22px}h1{letter-spacing:-2px}main{padding:0 13px}.search{grid-template-columns:1fr 1fr}.search label{padding:10px}.search label:nth-child(2){border-right:0}.search button{grid-column:1/-1}.grid{grid-template-columns:1fr}.cover{height:210px}.heading{align-items:flex-start;flex-direction:column}form.fields{grid-template-columns:1fr}.wide,.fields button{grid-column:auto}}
+
+/* Full listing viewer */
+.listing-modal{position:fixed;inset:0;z-index:1000;background:rgba(10,22,16,.76);display:flex;align-items:center;justify-content:center;padding:18px}
+.listing-dialog{position:relative;width:min(920px,100%);max-height:92vh;overflow:auto;background:var(--bg);border-radius:8px;box-shadow:0 24px 90px #0005;overscroll-behavior:contain}
+.listing-modal-head{position:sticky;top:0;z-index:3;display:flex;justify-content:space-between;align-items:center;gap:12px;padding:14px 18px;background:#fff;border-bottom:1px solid var(--line)}
+.listing-modal-brand{font-size:11px;font-weight:900;letter-spacing:1px;color:var(--g)}
+.close-listing{width:38px;height:38px;padding:0;font-size:24px;line-height:1;background:#edf1e9;color:var(--g);flex:none}
+.listing-detail{padding:20px}
+.detail-gallery{margin:0 0 22px}
+.detail-main-photo{height:clamp(220px,46vw,450px);position:relative;display:flex;align-items:center;justify-content:center;background:#e8ebe3;border-radius:5px;overflow:hidden}
+.detail-main-photo img{display:block;width:100%;height:100%;object-fit:contain}
+.detail-photo-placeholder{font-size:54px;color:#91a58f}
+.gallery-arrow{position:absolute;top:50%;transform:translateY(-50%);width:42px;height:46px;padding:0;background:#ffffffdf;color:var(--g);font-size:27px;box-shadow:0 2px 12px #0002}
+.gallery-prev{left:10px}
+.gallery-next{right:10px}
+.gallery-counter{position:absolute;right:10px;bottom:10px;padding:5px 9px;border-radius:3px;background:#173d31df;color:#fff;font-size:11px}
+.detail-thumbnails{display:flex;gap:8px;overflow-x:auto;padding:10px 1px 4px;scrollbar-width:thin}
+.detail-thumb{width:82px;height:64px;flex:0 0 auto;padding:0;border:2px solid transparent;background:#e8ebe3;border-radius:3px;overflow:hidden}
+.detail-thumb.active{border-color:var(--gold);box-shadow:0 0 0 1px var(--g)}
+.detail-thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.detail-topline{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:8px}
+.detail-tag{display:inline-block;background:#e9eee6;color:var(--g);padding:6px 9px;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.5px}
+.detail-title{font-size:clamp(25px,4vw,37px);line-height:1.18;letter-spacing:-.8px;margin:9px 0 6px;overflow-wrap:anywhere}
+.detail-location{font-size:14px;color:var(--muted);margin-bottom:12px}
+.detail-price{font-size:27px;font-weight:900;color:var(--g);margin:12px 0 18px;overflow-wrap:anywhere}
+.detail-price small{font-size:13px;font-weight:500;color:var(--muted)}
+.detail-facts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:18px 0 24px}
+.detail-fact{padding:13px;background:#fff;border:1px solid var(--line);min-width:0}
+.detail-fact strong{display:block;font-size:18px;color:var(--g);overflow-wrap:anywhere}
+.detail-fact span{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.7px}
+.detail-section{padding:20px 0;border-top:1px solid var(--line)}
+.detail-section h3{font-size:16px;margin:0 0 10px}
+.detail-description{font-size:14px;line-height:1.85;white-space:pre-wrap;overflow-wrap:anywhere}
+.detail-amenities{display:flex;flex-wrap:wrap;gap:8px}
+.amenity-chip{background:#fff;border:1px solid var(--line);padding:7px 10px;border-radius:3px;font-size:12px}
+.detail-contact{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
+.detail-contact p{margin:3px 0;font-size:13px;overflow-wrap:anywhere}
+.detail-contact-actions{display:flex;gap:8px;flex-wrap:wrap}
+.detail-contact-actions a{display:inline-flex;align-items:center;justify-content:center;padding:12px 16px;border-radius:4px;font-size:12px;font-weight:800}
+.whatsapp-link{background:var(--g);color:white}
+.copy-phone{background:#e9eee6;color:var(--g)}
+.no-photos-note{font-size:12px;color:var(--muted);padding:10px 0}
+
+@media(max-width:740px){
+ header{padding:13px;align-items:flex-start}
+ .brand{font-size:12px}
+ nav{justify-content:flex-end}
+ nav button{padding:9px;font-size:10px}
+ .hero{padding:45px 22px}
+ h1{letter-spacing:-2px}
+ main{padding:0 13px}
+ .search{grid-template-columns:1fr 1fr}
+ .search label{padding:10px}
+ .search label:nth-child(2){border-right:0}
+ .search button{grid-column:1/-1}
+ .grid{grid-template-columns:1fr}
+ .cover{height:210px}
+ .heading{align-items:flex-start;flex-direction:column}
+ form.fields{grid-template-columns:1fr}
+ .wide,.fields button{grid-column:auto}
+ .listing-modal{padding:0;align-items:stretch}
+ .listing-dialog{width:100%;max-height:100vh;border-radius:0}
+ .listing-detail{padding:14px}
+ .listing-modal-head{padding:10px 14px}
+ .detail-facts{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+ .detail-main-photo{height:clamp(220px,68vw,400px)}
+ .detail-contact{align-items:flex-start;flex-direction:column}
+ .detail-contact-actions{width:100%}
+ .detail-contact-actions a{flex:1}
+ .detail-price{font-size:24px}
+}
+@media(prefers-reduced-motion:no-preference){
+ .listing-dialog{animation:listingIn .16s ease-out}
+ @keyframes listingIn{from{transform:translateY(8px);opacity:.7}to{transform:translateY(0);opacity:1}}
+}
 </style>
 </head>
+
 <body>
 <header>
 <a class="brand" href="#">PHUKET<b>.</b> PROPERTY</a>
@@ -62,12 +151,14 @@ footer{margin-top:40px;padding:26px 5%;background:white;border-top:1px solid var
 <button class="green" id="post">＋ Post property</button>
 </nav>
 </header>
+
 <section class="hero">
 <div class="kicker">PHUKET · THAILAND · PROPERTY MARKETPLACE</div>
 <h1>Find your place.<br><em>Make it yours.</em></h1>
 <p>Find a home to rent or buy, or publish your own property. Create an account and your listing goes live immediately—no approval queue.</p>
 <button class="gold" onclick="document.querySelector('#properties').scrollIntoView({behavior:'smooth'})">Explore properties ↗</button>
 </section>
+
 <main>
 <form class="search" id="search">
 <label>SEARCH AREA OR KEYWORD<input id="q" placeholder="Rawai, condo, villa…"></label>
@@ -75,10 +166,14 @@ footer{margin-top:40px;padding:26px 5%;background:white;border-top:1px solid var
 <label>PROPERTY TYPE<select id="fType"><option value="">All types</option><option>Condo</option><option>Villa</option><option>House</option><option>Land</option><option>Townhouse</option><option>Apartment</option><option>Commercial</option><option>Other</option></select></label>
 <button class="gold">Search ↗</button>
 </form>
+
 <div id="accountMsg" class="msg"></div>
+
 <section id="postPanel" class="panel" hidden>
-<div class="kicker">INSTANT PUBLISHING</div><h2 id="formTitle">Post your property.</h2>
+<div class="kicker">INSTANT PUBLISHING</div>
+<h2 id="formTitle">Post your property.</h2>
 <p class="muted">Fill in the details. Your listing becomes public immediately after submission.</p>
+
 <form class="fields" id="listingForm">
 <label class="wide">PROPERTY TITLE *<input id="title" required maxlength="120" placeholder="2-bedroom condo in Rawai"></label>
 <label>OFFER TYPE<select id="offer"><option value="rent">For rent</option><option value="sale">For sale</option></select></label>
@@ -95,87 +190,195 @@ footer{margin-top:40px;padding:26px 5%;background:white;border-top:1px solid var
 <label class="wide">AMENITIES<input id="amenities" placeholder="Pool, parking, gym — separate with commas"></label>
 <label class="wide">PHOTOS (OPTIONAL, UP TO 6)<input id="photos" type="file" accept="image/*" multiple><span class="muted">Images are resized to fit within 1280 × 720 pixels before uploading. Upload only photos you have permission to use.</span><div id="preview" class="muted"></div></label>
 <button class="green" id="save">Publish listing ↗</button>
-</form><div id="formMsg" class="msg"></div>
+</form>
+<div id="formMsg" class="msg"></div>
 </section>
+
 <section id="properties">
-<div class="heading"><div><div class="kicker">COMMUNITY LISTINGS</div><h2>Explore properties<span style="color:var(--gold)">.</span></h2><p class="muted">Listings are user-submitted. Always verify details before making payments.</p></div><span class="muted" id="status">Connecting…</span></div>
-<div id="count" class="muted"></div><div class="grid" id="grid"><p class="muted">Loading properties…</p></div>
+<div class="heading">
+<div>
+<div class="kicker">COMMUNITY LISTINGS</div>
+<h2>Explore properties<span style="color:var(--gold)">.</span></h2>
+<p class="muted">Listings are user-submitted. Always verify details before making payments.</p>
+</div>
+<span class="muted" id="status">Connecting…</span>
+</div>
+<div id="count" class="muted"></div>
+<div class="grid" id="grid"><p class="muted">Loading properties…</p></div>
 </section>
-<section class="panel"><div class="kicker">YOUR PROPERTY, YOUR WAY</div><h2>Have a place to share?</h2><p class="muted">Sign up, add your property details, and publish instantly.</p><button class="green" onclick="document.querySelector('#postPanel').hidden=false;document.querySelector('#postPanel').scrollIntoView({behavior:'smooth'})">Post a property ↗</button></section>
+
+<section class="panel">
+<div class="kicker">YOUR PROPERTY, YOUR WAY</div>
+<h2>Have a place to share?</h2>
+<p class="muted">Sign up, add your property details, and publish instantly.</p>
+<button class="green" onclick="document.querySelector('#postPanel').hidden=false;document.querySelector('#postPanel').scrollIntoView({behavior:'smooth'})">Post a property ↗</button>
+</section>
 </main>
+
 <footer>PHUKET PROPERTY MARKET · Community listings across Phuket, Thailand.<br><br>Listings are not independently verified. Confirm ownership, terms, availability, and property condition before paying a deposit.</footer>
+
+<!-- Full listing viewer -->
+<div class="listing-modal" id="listingModal" hidden aria-hidden="true">
+<section class="listing-dialog" role="dialog" aria-modal="true" aria-labelledby="detailTitle">
+<div class="listing-modal-head">
+<span class="listing-modal-brand">PHUKET. PROPERTY · FULL LISTING</span>
+<button type="button" class="close-listing" id="closeListing" aria-label="Close listing">×</button>
+</div>
+<div class="listing-detail" id="listingDetail"></div>
+</section>
+</div>
+
 <script>
 const $=id=>document.getElementById(id);
 const ready=window.SUPABASE_URL&&window.SUPABASE_KEY&&!window.SUPABASE_KEY.includes("PASTE_");
 const db=ready&&window.supabase?window.supabase.createClient(window.SUPABASE_URL,window.SUPABASE_KEY):null;
+
 let user=null,rows=[],files=[];
+let activeListing=null,activePhotoIndex=0,lastFocusedElement=null;
+
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const money=n=>"฿"+Number(n||0).toLocaleString("en-US",{maximumFractionDigits:0});
-function msg(id,text,error=false){$(id).textContent=text;$(id).className=error?"msg err":"msg";}
-async function syncUser(){if(!db)return;const {data}=await db.auth.getSession();user=data.session?.user||null;$("login").hidden=!!user;$("signup").hidden=!!user;$("logout").hidden=!user;}
+
+function msg(id,text,error=false){
+ $(id).textContent=text;
+ $(id).className=error?"msg err":"msg";
+}
+
+function imagesOf(x){
+ const value=x?.image_urls;
+ if(Array.isArray(value))return value.filter(v=>typeof v==="string"&&v.trim());
+ if(typeof value==="string"&&value.trim()){
+  try{
+   const parsed=JSON.parse(value);
+   if(Array.isArray(parsed))return parsed.filter(v=>typeof v==="string"&&v.trim());
+  }catch{}
+  return [value.trim()];
+ }
+ return [];
+}
+
+function amenitiesOf(x){
+ const value=x?.amenities;
+ if(Array.isArray(value))return value.map(v=>String(v).trim()).filter(Boolean);
+ if(typeof value==="string"&&value.trim()){
+  try{
+   const parsed=JSON.parse(value);
+   if(Array.isArray(parsed))return parsed.map(v=>String(v).trim()).filter(Boolean);
+  }catch{}
+  return value.split(/[,\n]/).map(v=>v.trim()).filter(Boolean);
+ }
+ return [];
+}
+
+function safeImageUrl(url){
+ try{
+  const u=new URL(String(url),window.location.href);
+  return ["https:","http:"].includes(u.protocol)?u.href:"";
+ }catch{return "";}
+}
+
+async function syncUser(){
+ if(!db)return;
+ const {data}=await db.auth.getSession();
+ user=data.session?.user||null;
+ $("login").hidden=!!user;
+ $("signup").hidden=!!user;
+ $("logout").hidden=!user;
+}
+
 async function refresh(){
- if(!db){$("status").textContent="Needs setup";$("grid").innerHTML='<p class="muted">Website created. Add your Supabase connection in config.js to activate accounts and listings.</p>';return;}
+ if(!db){
+  $("status").textContent="Needs setup";
+  $("grid").innerHTML='<p class="muted">Add your Supabase connection in config.js to activate accounts and listings.</p>';
+  return;
+ }
+
  const {data,error}=await db.from("listings").select("*").order("created_at",{ascending:false}).limit(500);
- if(error){$("status").textContent="Database error";$("grid").textContent=error.message;return;}
- rows=data||[];$("status").textContent="Live marketplace";render();
+
+ if(error){
+  $("status").textContent="Database error";
+  $("grid").textContent=error.message;
+  return;
+ }
+
+ rows=data||[];
+ $("status").textContent="Live marketplace";
+ render();
 }
+
 function render(){
- const q=$("q").value.toLowerCase().trim(),offer=$("fOffer").value,type=$("fType").value;
- const a=rows.filter(x=>(!offer||x.offer_type===offer)&&(!type||x.property_type===type)&&(!q||[x.title,x.location,x.description,x.property_type,(x.amenities||[]).join(" ")].join(" ").toLowerCase().includes(q)));
+ const q=$("q").value.toLowerCase().trim();
+ const offer=$("fOffer").value;
+ const type=$("fType").value;
+
+ const a=rows.filter(x=>
+  (!offer||x.offer_type===offer)&&
+  (!type||x.property_type===type)&&
+  (!q||[x.title,x.location,x.description,x.property_type,amenitiesOf(x).join(" ")].join(" ").toLowerCase().includes(q))
+ );
+
  $("count").textContent=`${a.length} properties found`;
- $("grid").innerHTML=a.length?a.map(x=>`<article class="card"><div class="cover">${x.image_urls?.length?`<img loading="lazy" src="${esc(x.image_urls[0])}" alt="${esc(x.title)}">`:'<div class="nophoto">⌂</div>'}<span class="badge">${x.offer_type==="sale"?"FOR SALE":"FOR RENT"}</span></div><div class="body"><div class="type">${esc(x.property_type)} · ${esc(x.location)}</div><h3>${esc(x.title)}</h3><div class="muted">${x.bedrooms||0} bed · ${x.bathrooms||0} bath ${x.size_sqm?`· ${esc(x.size_sqm)} m²`:""}</div><div class="price">${money(x.price)} <small>${x.offer_type==="sale"?"total":"/ "+esc(x.price_period||"month")}</small></div><div class="muted">${esc(x.description)}</div><p class="muted">Contact: ${esc(x.contact_name)} · ${esc(x.contact_phone)}</p><div class="actions">${x.contact_phone?`<a class="green" target="_blank" rel="noopener" href="https://wa.me/${String(x.contact_phone).replace(/\D/g,"")}?text=${encodeURIComponent("Hello, I am interested in "+x.title+". Is it available?")}">WhatsApp ↗</a>`:""}${user&&x.user_id===user.id?`<button class="pale" onclick="deleteListing('${x.id}')">Delete my listing</button>`:""}</div></div></article>`).join(""):'<div class="muted">No listings yet. Be the first to publish a property!</div>';
+
+ $("grid").innerHTML=a.length?a.map(x=>{
+  const photos=imagesOf(x);
+  const cover=photos.length?safeImageUrl(photos[0]):"";
+
+  return `<article class="card">
+   <div class="cover">
+    ${cover?`<img loading="lazy" src="${esc(cover)}" alt="${esc(x.title)}">`:'<div class="nophoto" aria-label="No photo">⌂</div>'}
+    <span class="badge">${x.offer_type==="sale"?"FOR SALE":"FOR RENT"}</span>
+   </div>
+   <div class="body">
+    <div class="type">${esc(x.property_type)} · ${esc(x.location)}</div>
+    <h3>${esc(x.title)}</h3>
+    <div class="muted">${Number(x.bedrooms)||0} bed · ${Number(x.bathrooms)||0} bath ${x.size_sqm?`· ${esc(x.size_sqm)} m²`:""}</div>
+    <div class="price">${money(x.price)} <small>${x.offer_type==="sale"?"total":"/ "+esc(x.price_period||"month")}</small></div>
+    <div class="muted card-description">${esc(x.description)}</div>
+    <div class="muted" style="margin-top:8px">${photos.length?`${photos.length} photo${photos.length===1?"":"s"}`:"No photos"} · Contact: ${esc(x.contact_name||"Owner")}</div>
+    <div class="actions">
+     <button type="button" class="view-listing" data-open-listing="${esc(x.id)}">View full listing ↗</button>
+     ${x.contact_phone?`<a class="green" target="_blank" rel="noopener noreferrer" href="https://wa.me/${String(x.contact_phone).replace(/\D/g,"")}?text=${encodeURIComponent("Hello, I am interested in "+(x.title||"this property")+". Is it available?")}">WhatsApp ↗</a>`:""}
+     ${user&&x.user_id===user.id?`<button type="button" class="pale" data-delete-listing="${esc(x.id)}">Delete my listing</button>`:""}
+    </div>
+   </div>
+  </article>`;
+ }).join(""):'<div class="muted">No listings yet. Be the first to publish a property!</div>';
 }
-async function auth(mode){
- if(!db){alert("First add your Supabase URL and publishable key in config.js.");return;}
- const email=prompt("Enter your email address:");if(!email)return;
- const password=prompt("Enter your password (at least 8 characters):");if(!password)return;
- try{
-  let r;
-  if(mode==="signup"){const name=prompt("Your name (shown in account only):")||"";r=await db.auth.signUp({email,password,options:{data:{full_name:name}}});}
-  else r=await db.auth.signInWithPassword({email,password});
-  if(r.error)throw r.error;
-  await syncUser();
-  msg("accountMsg",mode==="signup"&&!r.data.session?"Account created. Check your email to confirm, then log in.":"Successfully signed in.");
-  if(r.data.session){$("postPanel").hidden=false;$("postPanel").scrollIntoView({behavior:"smooth"});}
- }catch(e){msg("accountMsg",e.message,true);}
+
+function openListing(id){
+ const item=rows.find(x=>String(x.id)===String(id));
+ if(!item)return;
+
+ activeListing=item;
+ activePhotoIndex=0;
+ lastFocusedElement=document.activeElement;
+
+ renderListingDetail();
+
+ $("listingModal").hidden=false;
+ $("listingModal").setAttribute("aria-hidden","false");
+ document.body.style.overflow="hidden";
+ $("closeListing").focus();
 }
-async function resize(file){
- if(!file.type.startsWith("image/")||file.size>15*1024*1024)throw Error("Use an image smaller than 15 MB.");
- const im=await createImageBitmap(file),s=Math.min(1,1280/im.width,720/im.height);
- const c=document.createElement("canvas");c.width=Math.round(im.width*s);c.height=Math.round(im.height*s);
- c.getContext("2d").drawImage(im,0,0,c.width,c.height);im.close();
- const b=await new Promise((ok,bad)=>c.toBlob(x=>x?ok(x):bad(Error("Could not resize image")),"image/webp",.82));
- if(b.size>3*1024*1024)throw Error("Resized photo is over 3 MB.");
- return new File([b],crypto.randomUUID()+".webp",{type:"image/webp"});
+
+function closeListing(){
+ $("listingModal").hidden=true;
+ $("listingModal").setAttribute("aria-hidden","true");
+ document.body.style.overflow="";
+ activeListing=null;
+
+ if(lastFocusedElement&&typeof lastFocusedElement.focus==="function"){
+  lastFocusedElement.focus();
+ }
 }
-async function publish(e){
- e.preventDefault();if(!db||!user){msg("formMsg","Log in first to publish a listing.",true);return;}
- if(files.length>6){msg("formMsg","Choose no more than 6 photos.",true);return;}
- const btn=$("save");btn.disabled=true;btn.textContent="Publishing…";
- try{
-  const id=crypto.randomUUID(),urls=[];
-  for(const f of files){const im=await resize(f),path=`${user.id}/${id}/${crypto.randomUUID()}.webp`;
-   const {error}=await db.storage.from("listing-photos").upload(path,im,{contentType:"image/webp"});
-   if(error)throw error;urls.push(db.storage.from("listing-photos").getPublicUrl(path).data.publicUrl);}
-  const data={id,user_id:user.id,title:$("title").value.trim(),description:$("description").value.trim(),offer_type:$("offer").value,property_type:$("ptype").value,location:$("location").value.trim(),price:Number($("price").value),price_period:$("offer").value==="sale"?"total":$("period").value,bedrooms:Number($("beds").value||0),bathrooms:Number($("baths").value||0),size_sqm:$("size").value?Number($("size").value):null,amenities:$("amenities").value.split(",").map(x=>x.trim()).filter(Boolean),contact_name:$("contact").value.trim(),contact_phone:$("phone").value.trim(),image_urls:urls};
-  const {error}=await db.from("listings").insert(data);if(error)throw error;
-  $("listingForm").reset();files=[];$("preview").textContent="";msg("formMsg","Published! Your listing is now visible.");await refresh();
- }catch(e){msg("formMsg",e.message||"Could not publish; check setup and try again.",true);}
- finally{btn.disabled=false;btn.textContent="Publish listing ↗";}
-}
-async function deleteListing(id){
- if(!confirm("Delete your listing?"))return;
- const {error}=await db.from("listings").delete().eq("id",id).eq("user_id",user.id);
- if(error){alert(error.message);return;}await refresh();
-}
-$("login").onclick=()=>auth("login");$("signup").onclick=()=>auth("signup");
-$("logout").onclick=async()=>{await db.auth.signOut();await syncUser();await refresh();};
-$("post").onclick=()=>{if(!user){auth("login");return;}$("postPanel").hidden=false;$("postPanel").scrollIntoView({behavior:"smooth"});};
-$("search").onsubmit=e=>{e.preventDefault();render();};$("q").oninput=render;$("fOffer").onchange=render;$("fType").onchange=render;
-$("listingForm").onsubmit=publish;
-$("offer").onchange=()=>$("periodLabel").hidden=$("offer").value==="sale";
-$("photos").onchange=e=>{files=[...e.target.files].slice(0,6);$("preview").textContent=`${files.length} photo(s) selected. They will be resized to 720p before uploading.`;};
-(async()=>{if(!db){$("status").textContent="Needs setup";return;}await syncUser();await refresh();db.auth.onAuthStateChange(async()=>{await syncUser();});})();
-</script>
-</body>
-</html>
+
+function renderListingDetail(){
+ const x=activeListing;
+ if(!x)return;
+
+ const photos=imagesOf(x);
+ const amenities=amenitiesOf(x);
+ const pricePeriod=x.offer_type==="sale"?"total":"/ "+(x.price_period||"month");
+ const title=esc(x.title||"Property listing");
+ const image=photos.length?safeImageUrl(photos[activePhotoIndex]):"";
+ const phone=String(x.contact_phone

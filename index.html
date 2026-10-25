@@ -1,699 +1,352 @@
-<!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#173d31">
-<title>Phuket Property Market</title>
+ deleteButton = owner
+   ? `<button class="pale" type="button" data-delete-id="${esc(item.id)}">Delete my listing</button>`
+   : '';
+ const suffix = item.offer_type === 'sale' ? 'total' : '/ ' + esc(item.price_period || 'month');
 
-<script src="config.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-<style>
-:root {
-  --green: #173d31;
-  --green2: #244f40;
-  --gold: #c8a76b;
-  --bg: #f7f6ef;
-  --ink: #20362a;
-  --muted: #788378;
-  --line: #e2e6dc;
-  --white: #fff;
-}
-* { box-sizing: border-box; }
-body {
-  margin: 0;
-  background: var(--bg);
-  color: var(--ink);
-  font: 15px/1.6 system-ui, sans-serif;
-}
-body.modal-open { overflow: hidden; }
-[hidden] { display: none !important; }
-button, input, textarea, select { font: inherit; }
-button, a { cursor: pointer; }
-button {
-  border: 0;
-  border-radius: 4px;
-  padding: 11px 14px;
-  font-size: 12px;
-  font-weight: 750;
-}
-a { color: inherit; text-decoration: none; }
-button:focus-visible, a:focus-visible {
-  outline: 3px solid var(--gold);
-  outline-offset: 3px;
-}
-.green { background: var(--green); color: white; }
-.green:hover { background: var(--green2); }
-.gold { background: var(--gold); color: var(--ink); }
-.pale { background: #edf1e9; color: var(--green); }
-
-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 12px;
-  padding: 16px 5%;
-  background: white;
-  border-bottom: 1px solid var(--line);
-}
-.brand {
-  font-size: 15px;
-  font-weight: 900;
-  letter-spacing: 1px;
-  color: var(--green);
-  white-space: nowrap;
-}
-.brand b { color: var(--gold); }
-nav { display: flex; gap: 7px; flex-wrap: wrap; }
-
-.hero {
-  padding: 65px 8% 75px;
-  color: white;
-  background:
-    radial-gradient(ellipse at 90% 15%, #315c47, transparent 40%),
-    var(--green);
-}
-.kicker {
-  color: #91a795;
-  font-size: 10px;
-  font-weight: 850;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-}
-.hero .kicker { color: #b0c3ae; }
-h1 {
-  margin: 20px 0;
-  font-size: clamp(42px, 8vw, 76px);
-  letter-spacing: -3px;
-  line-height: 1.04;
-}
-h1 em, h2 em {
-  color: var(--gold);
-  font-family: Georgia, serif;
-  font-weight: 400;
-}
-.hero p {
-  max-width: 550px;
-  color: #c8d7ca;
-  line-height: 1.9;
-  margin-bottom: 25px;
-}
-main { max-width: 1180px; margin: auto; padding: 0 22px; }
-
-.search {
-  position: relative;
-  display: grid;
-  grid-template-columns: 2fr 1fr 1fr auto;
-  margin: -19px 0 45px;
-  background: white;
-  border: 1px solid var(--line);
-  box-shadow: 0 10px 30px #173d3110;
-}
-.search label {
-  padding: 12px;
-  border-right: 1px solid var(--line);
-  color: var(--muted);
-  font-size: 9px;
-  font-weight: 850;
-  letter-spacing: 1px;
-}
-.search input, .search select {
-  display: block;
-  width: 100%;
-  padding-top: 8px;
-  border: 0;
-  outline: none;
-  background: white;
-  color: var(--ink);
-  font-size: 12px;
-}
-.search button { border-radius: 0; }
-
-.heading {
-  display: flex;
-  justify-content: space-between;
-  align-items: end;
-  gap: 15px;
-  margin-bottom: 20px;
-}
-h2 {
-  margin: 8px 0;
-  font-size: clamp(27px, 4vw, 39px);
-  letter-spacing: -1px;
-  line-height: 1.2;
-}
-.muted {
-  color: var(--muted);
-  font-size: 12px;
-  line-height: 1.7;
-}
-.grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 18px;
-  margin: 20px 0 50px;
-}
-.card {
-  min-width: 0;
-  overflow: hidden;
-  background: white;
-  border: 1px solid var(--line);
-  cursor: pointer;
-  transition: transform .18s, box-shadow .18s;
-}
-.card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 12px 30px #173d3112;
-}
-.cover {
-  position: relative;
-  display: grid;
-  place-items: center;
-  height: 210px;
-  overflow: hidden;
-  background: linear-gradient(135deg, #edf0e6, #d7e1d4);
-}
-.cover img { width: 100%; height: 100%; object-fit: cover; }
-.nophoto { color: #91a58f; font-size: 45px; }
-.badge {
-  position: absolute;
-  top: 12px;
-  left: 12px;
-  padding: 7px 9px;
-  background: var(--green);
-  color: white;
-  font-size: 9px;
-  font-weight: 850;
-}
-.body { padding: 17px; }
-.type {
-  color: var(--muted);
-  font-size: 10px;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-}
-.card h3 { margin: 8px 0; font-size: 17px; line-height: 1.4; }
-.price {
-  margin: 13px 0;
-  color: var(--green);
-  font-size: 20px;
-  font-weight: 900;
-}
-.price small { color: var(--muted); font-size: 11px; font-weight: 500; }
-.card-desc {
-  display: -webkit-box;
-  overflow: hidden;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
-}
-.actions { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 14px; }
-.actions a, .actions button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 9px 10px;
-  font-size: 10px;
-}
-.empty {
-  grid-column: 1/-1;
-  padding: 25px;
-  background: white;
-  border: 1px solid var(--line);
+ return `
+ <article class="card" data-listing-id="${esc(item.id)}" role="button" tabindex="0">
+   <div class="cover">${imageHTML}<span class="badge">${item.offer_type === 'sale' ? 'FOR SALE' : 'FOR RENT'}</span></div>
+   <div class="body">
+     <div class="type">${esc(item.property_type || 'Property')} · ${esc(item.location || 'Phuket')}</div>
+     <h3>${esc(item.title || 'Untitled property')}</h3>
+     <div class="muted">${esc(item.bedrooms ?? 0)} bed · ${esc(item.bathrooms ?? 0)} bath ${item.size_sqm ? '· ' + esc(item.size_sqm) + ' m²' : ''}</div>
+     <div class="price">${money(item.price)} <small>${suffix}</small></div>
+     <div class="muted card-desc">${esc(item.description || '')}</div>
+     <div class="actions">${whatsapp}${deleteButton}</div>
+   </div>
+ </article>`;
+ }).join('');
 }
 
-.panel {
-  margin: 25px 0;
-  padding: 22px;
-  background: white;
-  border: 1px solid var(--line);
-}
-.fields {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 14px;
-}
-.fields label {
-  display: flex;
-  flex-direction: column;
-  gap: 7px;
-  color: var(--muted);
-  font-size: 10px;
-  font-weight: 850;
-}
-.fields input, .fields select, .fields textarea {
-  width: 100%;
-  padding: 12px;
-  border: 1px solid var(--line);
-  border-radius: 4px;
-  background: white;
-  color: var(--ink);
-  font-size: 13px;
-}
-.fields textarea { min-height: 110px; resize: vertical; }
-.wide, .fields button { grid-column: 1/-1; }
-.msg { margin: 12px 0; color: var(--green); font-size: 12px; }
-.err { color: #a33f32; }
-.preview-grid { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 9px; }
-.preview-grid img {
-  width: 65px;
-  height: 55px;
-  object-fit: cover;
-  border: 1px solid var(--line);
-  border-radius: 4px;
-}
-footer {
-  margin-top: 40px;
-  padding: 28px 5%;
-  background: white;
-  border-top: 1px solid var(--line);
-  color: var(--muted);
-  font-size: 11px;
+/* PROPERTY DETAILS + PHOTO GALLERY */
+function openDetails(id) {
+ const p = rows.find(x => String(x.id) === String(id));
+ if (!p) return;
+ activeListing = p;
+ galleryIndex = 0;
+ previousFocus = document.activeElement;
+
+ const phone = phoneDigits(p.contact_phone);
+ const amen = amenitiesOf(p).map(x => String(x).trim()).filter(Boolean)
+   .map(x => `<span class="amenity">${esc(x)}</span>`).join('');
+ const period = p.offer_type === 'sale' || p.price_period === 'total'
+   ? 'total' : '/ ' + esc(p.price_period || 'month');
+ const wa = phone
+   ? `<a class="green" href="https://wa.me/${esc(phone)}?text=${encodeURIComponent('Hello, I am interested in ' + p.title + '. Is it available?')}" target="_blank" rel="noopener noreferrer">Message on WhatsApp ↗</a>`
+   : '';
+ const del = user && String(user.id) === String(p.user_id)
+   ? '<button class="pale" id="detailDelete" type="button">Delete my listing</button>' : '';
+
+ $('detailContent').innerHTML = `
+   <div class="type">${p.offer_type === 'sale' ? 'FOR SALE' : 'FOR RENT'} · ${esc(p.property_type || 'Property')} · ${esc(p.location || 'Phuket')}</div>
+   <h2 id="detailTitle">${esc(p.title || 'Untitled property')}</h2>
+   <div class="detail-price">${money(p.price)} <small>${period}</small></div>
+   <div class="facts">
+     <div class="fact"><b>${esc(p.bedrooms ?? 0)}</b><span>Bedrooms</span></div>
+     <div class="fact"><b>${esc(p.bathrooms ?? 0)}</b><span>Bathrooms</span></div>
+     <div class="fact"><b>${p.size_sqm ? esc(p.size_sqm) : '—'}</b><span>Square metres</span></div>
+   </div>
+   <h3>About this property</h3>
+   <div class="detail-description">${esc(p.description || 'No description provided.')}</div>
+   ${amen ? '<h3>Amenities</h3><div class="amenity-list">' + amen + '</div>' : ''}
+   <div class="contact-box">
+     <strong>Contact ${esc(p.contact_name || 'the owner')}</strong>
+     <div class="muted">${esc(p.contact_phone || 'No phone number provided')}</div>
+     <div class="actions">${wa}${del}</div>
+   </div>`;
+
+ drawGallery();
+ $('detailBackdrop').hidden = false;
+ document.body.classList.add('lock');
+ $('detailClose').focus();
+
+ if ($('detailDelete')) {
+   $('detailDelete').onclick = () => deleteListing(p.id);
+ }
 }
 
-/* PROPERTY DETAILS WINDOW */
-.backdrop {
-  position: fixed;
-  inset: 0;
-  z-index: 100;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
-  overflow: auto;
-  background: #071812d9;
+function drawGallery() {
+ if (!activeListing) return;
+ const photos = photosOf(activeListing);
+
+ if (!photos.length) {
+   $('galleryMain').innerHTML = '<div class="gallery-empty">⌂</div>';
+   $('thumbs').innerHTML = '';
+   return;
+ }
+
+ galleryIndex = (galleryIndex + photos.length) % photos.length;
+ $('galleryMain').innerHTML = `
+   <img src="${esc(photos[galleryIndex])}" alt="${esc(activeListing.title)} photo ${galleryIndex + 1}">
+   ${photos.length > 1 ? '<button class="gallery-arrow prev" type="button" data-gallery="prev">‹</button><button class="gallery-arrow next" type="button" data-gallery="next">›</button>' : ''}
+   <span class="gallery-count">${galleryIndex + 1} / ${photos.length}</span>`;
+
+ $('thumbs').innerHTML = photos.map((url, i) =>
+   `<button type="button" class="thumb ${i === galleryIndex ? 'active' : ''}" data-thumb="${i}">
+     <img src="${esc(url)}" alt="Photo ${i + 1}">
+   </button>`
+ ).join('');
 }
-.detail-modal {
-  width: min(100%, 1050px);
-  max-height: calc(100dvh - 40px);
-  overflow: auto;
-  border-radius: 6px;
-  background: white;
-  box-shadow: 0 25px 80px #0005;
+
+function closeDetails() {
+ $('detailBackdrop').hidden = true;
+ document.body.classList.remove('lock');
+ activeListing = null;
+ if (previousFocus && previousFocus.focus) previousFocus.focus();
 }
-.modal-top {
-  position: sticky;
-  top: 0;
-  z-index: 5;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 11px 16px;
-  border-bottom: 1px solid var(--line);
-  background: white;
+
+/* LOGIN + SIGNUP */
+async function auth(mode) {
+ if (!db) {
+   setMsg('accountMsg', 'Supabase is not connected. Check config.js.', true);
+   return;
+ }
+
+ const email = prompt('Enter your email address:');
+ if (!email) return;
+ const password = prompt('Enter your password (at least 8 characters):');
+ if (!password) return;
+
+ if (mode === 'signup' && password.length < 8) {
+   setMsg('accountMsg', 'Use a password with at least 8 characters.', true);
+   return;
+ }
+
+ try {
+   let r;
+   if (mode === 'signup') {
+     const name = prompt('Your name:') || '';
+     r = await db.auth.signUp({
+       email: email.trim(),
+       password,
+       options: { data: { full_name: name } }
+     });
+   } else {
+     r = await db.auth.signInWithPassword({ email: email.trim(), password });
+   }
+
+   if (r.error) throw r.error;
+   user = r.data.session?.user || null;
+   updateAuthButtons();
+
+   setMsg('accountMsg', mode === 'signup' && !r.data.session
+     ? 'Account created. Check your email to confirm, then log in.'
+     : 'Successfully signed in.');
+
+   if (r.data.session) {
+     $('postPanel').hidden = false;
+     await refresh();
+     $('postPanel').scrollIntoView({ behavior: 'smooth' });
+   }
+ } catch (e) {
+   setMsg('accountMsg', e.message || 'Could not sign in.', true);
+ }
 }
-.modal-top strong {
-  color: var(--green);
-  font-size: 11px;
-  letter-spacing: 1px;
+
+/* RESIZE PHOTOS BEFORE UPLOADING */
+async function resizeImage(file) {
+ if (!file.type.startsWith('image/')) throw Error('Select image files only.');
+ if (file.size > 15 * 1024 * 1024) throw Error('Each original photo must be under 15 MB.');
+
+ const im = await createImageBitmap(file);
+ const scale = Math.min(1, 1280 / im.width, 720 / im.height);
+ const canvas = document.createElement('canvas');
+ canvas.width = Math.max(1, Math.round(im.width * scale));
+ canvas.height = Math.max(1, Math.round(im.height * scale));
+ canvas.getContext('2d').drawImage(im, 0, 0, canvas.width, canvas.height);
+ im.close();
+
+ const blob = await new Promise((resolve, reject) => {
+   canvas.toBlob(b => b ? resolve(b) : reject(Error('Could not resize photo.')), 'image/webp', 0.82);
+ });
+ if (blob.size > 3 * 1024 * 1024) throw Error('A resized photo is over 3 MB.');
+ return new File([blob], crypto.randomUUID() + '.webp', { type: 'image/webp' });
 }
-.close-btn {
-  padding: 5px 11px;
-  background: #edf1e9;
-  color: var(--green);
-  font-size: 22px;
+
+async function publish(e) {
+ e.preventDefault();
+ if (!db || !user) {
+   setMsg('formMsg', 'Log in first to publish a listing.', true);
+   return;
+ }
+ if (selectedFiles.length > 10) {
+   setMsg('formMsg', 'Choose no more than 10 photos.', true);
+   return;
+ }
+
+ const btn = $('save');
+ btn.disabled = true;
+ btn.textContent = 'Publishing…';
+
+ try {
+   const id = crypto.randomUUID();
+   const urls = [];
+
+   for (let i = 0; i < selectedFiles.length; i++) {
+     setMsg('formMsg', 'Uploading photo ' + (i + 1) + ' of ' + selectedFiles.length + '…');
+     const photo = await resizeImage(selectedFiles[i]);
+     const path = user.id + '/' + id + '/' + crypto.randomUUID() + '.webp';
+     const upload = await db.storage.from('listing-photos').upload(path, photo, { contentType: 'image/webp' });
+     if (upload.error) throw upload.error;
+     urls.push(db.storage.from('listing-photos').getPublicUrl(path).data.publicUrl);
+   }
+
+   const listing = {
+     id, user_id: user.id,
+     title: $('title').value.trim(),
+     description: $('description').value.trim(),
+     offer_type: $('offer').value,
+     property_type: $('ptype').value,
+     location: $('location').value.trim(),
+     price: Number($('price').value),
+     price_period: $('offer').value === 'sale' ? 'total' : $('period').value,
+     bedrooms: Number($('beds').value || 0),
+     bathrooms: Number($('baths').value || 0),
+     size_sqm: $('size').value ? Number($('size').value) : null,
+     amenities: $('amenities').value.split(',').map(x => x.trim()).filter(Boolean),
+     contact_name: $('contact').value.trim(),
+     contact_phone: $('phone').value.trim(),
+     image_urls: urls
+   };
+
+   const result = await db.from('listings').insert(listing);
+   if (result.error) throw result.error;
+
+   $('listingForm').reset();
+   selectedFiles = [];
+   $('preview').textContent = '';
+   setMsg('formMsg', 'Published! Your listing is now visible.');
+   await refresh();
+   $('properties').scrollIntoView({ behavior: 'smooth' });
+ } catch (e) {
+   setMsg('formMsg', e.message || 'Could not publish listing.', true);
+ } finally {
+   btn.disabled = false;
+   btn.textContent = 'Publish listing ↗';
+ }
 }
-.detail-layout {
-  display: grid;
-  grid-template-columns: 1.1fr .9fr;
+
+async function deleteListing(id) {
+ if (!db || !user) return alert('Log in with the account that published this listing.');
+ if (!confirm('Delete your property listing?')) return;
+
+ const r = await db.from('listings').delete().eq('id', id).eq('user_id', user.id);
+ if (r.error) return alert('Could not delete listing: ' + r.error.message);
+ closeDetails();
+ await refresh();
 }
-.gallery { min-width: 0; background: #111b15; }
-.gallery-main {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 450px;
-  background: #111b15;
-}
-.gallery-main img { width: 100%; height: 100%; object-fit: contain; }
-.gallery-empty { color: #c6d1c8; font-size: 65px; }
-.gallery-arrow {
-  position: absolute;
-  top: 50%;
-  display: grid;
-  place-items: center;
-  width: 42px;
-  height: 42px;
-  padding: 0;
-  transform: translateY(-50%);
-  border-radius: 50%;
-  background: #ffffffdf;
-  color: var(--green);
-  font-size: 24px;
-}
-.gallery-arrow.prev { left: 12px; }
-.gallery-arrow.next { right: 12px; }
-.gallery-count {
-  position: absolute;
-  right: 12px;
-  bottom: 12px;
-  padding: 5px 9px;
-  border-radius: 3px;
-  background: #071812bf;
-  color: white;
-  font-size: 11px;
-}
-.thumbs {
-  display: flex;
-  gap: 8px;
-  padding: 10px;
-  overflow-x: auto;
-  background: #17251e;
-}
-.thumb {
-  flex: 0 0 76px;
-  height: 58px;
-  overflow: hidden;
-  padding: 0;
-  border: 2px solid transparent;
-  background: #27382e;
-}
-.thumb img { width: 100%; height: 100%; object-fit: cover; }
-.thumb.active { border-color: var(--gold); }
-.detail-content { min-width: 0; padding: 26px; }
-.detail-content h2 { overflow-wrap: anywhere; font-size: clamp(24px, 3vw, 35px); }
-.detail-price { margin: 12px 0 18px; color: var(--green); font-size: 28px; font-weight: 900; }
-.detail-price small { color: var(--muted); font-size: 13px; font-weight: 500; }
-.facts { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 8px; margin: 20px 0; }
-.fact { padding: 10px; border: 1px solid var(--line); background: var(--bg); }
-.fact b { display: block; color: var(--green); font-size: 17px; }
-.fact span { color: var(--muted); font-size: 9px; text-transform: uppercase; letter-spacing: .6px; }
-.detail-description { white-space: pre-wrap; overflow-wrap: anywhere; font-size: 13px; line-height: 1.8; }
-.amenity-list { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 8px; }
-.amenity {
-  padding: 6px 9px;
-  border: 1px solid var(--line);
-  border-radius: 30px;
-  background: #f8f9f5;
-  font-size: 11px;
-}
-.contact-box { margin-top: 22px; padding-top: 18px; border-top: 1px solid var(--line); }
-.contact-box strong { display: block; margin-bottom: 4px; }
 
-@media(max-width:850px) {
-  .grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
-  .detail-layout { grid-template-columns: 1fr; }
-  .gallery-main { height: min(55vw,430px); min-height: 250px; }
-  .detail-content { padding: 22px; }
-}
-@media(max-width:600px) {
-  header { align-items: flex-start; padding: 12px; }
-  .brand { padding-top: 8px; font-size: 11px; }
-  nav { justify-content: flex-end; gap: 5px; }
-  nav button { padding: 9px; font-size: 10px; }
-  .hero { padding: 45px 22px 58px; }
-  h1 { letter-spacing: -2px; }
-  main { padding: 0 13px; }
-  .search { grid-template-columns: 1fr 1fr; margin-bottom: 35px; }
-  .search label { padding: 10px; }
-  .search label:nth-child(2) { border-right: 0; }
-  .search button { grid-column: 1/-1; }
-  .grid { grid-template-columns: 1fr; gap: 14px; }
-  .cover { height: 220px; }
-  .heading { align-items: flex-start; flex-direction: column; }
-  .fields { grid-template-columns: 1fr; }
-  .wide, .fields button { grid-column: 1; }
-  .panel { padding: 16px; }
-  .backdrop { padding: 0; }
-  .detail-modal { max-height: 100dvh; height: 100dvh; border-radius: 0; }
-  .gallery-main { height: 40vh; min-height: 230px; }
-  .detail-content { padding: 18px 15px; }
-  .fact { padding: 8px 6px; }
-  .fact b { font-size: 15px; }
-  .fact span { font-size: 8px; }
-}
-</style>
-</head>
-
-<body>
-<header>
-  <a class="brand" href="#">PHUKET<b>.</b> PROPERTY</a>
-  <nav>
-    <button class="pale" id="login" type="button">Log in</button>
-    <button class="pale" id="signup" type="button">Sign up</button>
-    <button class="pale" id="logout" type="button" hidden>Log out</button>
-    <button class="green" id="post" type="button">＋ Post property</button>
-  </nav>
-</header>
-
-<section class="hero">
-  <div class="kicker">PHUKET · THAILAND · PROPERTY MARKETPLACE</div>
-  <h1>Find your place.<br><em>Make it yours.</em></h1>
-  <p>Find a home to rent or buy, or publish your own property. Explore condos, villas, houses and land across Phuket.</p>
-  <button class="gold" id="explore" type="button">Explore properties ↗</button>
-</section>
-
-<main>
-  <form class="search" id="search">
-    <label>SEARCH AREA OR KEYWORD
-      <input id="q" placeholder="Rawai, condo, villa…" autocomplete="off">
-    </label>
-    <label>OFFER
-      <select id="fOffer">
-        <option value="">Rent or sale</option>
-        <option value="rent">For rent</option>
-        <option value="sale">For sale</option>
-      </select>
-    </label>
-    <label>PROPERTY TYPE
-      <select id="fType">
-        <option value="">All types</option>
-        <option>Condo</option><option>Villa</option><option>House</option>
-        <option>Land</option><option>Townhouse</option><option>Apartment</option>
-        <option>Commercial</option><option>Other</option>
-      </select>
-    </label>
-    <button class="gold" type="submit">Search ↗</button>
-  </form>
-
-  <div id="accountMsg" class="msg" role="status"></div>
-
-  <section class="panel" id="postPanel" hidden>
-    <div class="kicker">INSTANT PUBLISHING</div>
-    <h2>Post your property.</h2>
-    <p class="muted">Fill in the details. Your listing will be published after submission.</p>
-
-    <form class="fields" id="listingForm">
-      <label class="wide">PROPERTY TITLE *
-        <input id="title" required maxlength="120" placeholder="2-bedroom condo in Rawai">
-      </label>
-      <label>OFFER TYPE
-        <select id="offer"><option value="rent">For rent</option><option value="sale">For sale</option></select>
-      </label>
-      <label>PROPERTY TYPE
-        <select id="ptype">
-          <option>Condo</option><option>Villa</option><option>House</option>
-          <option>Land</option><option>Townhouse</option><option>Apartment</option>
-          <option>Commercial</option><option>Other</option>
-        </select>
-      </label>
-      <label class="wide">AREA / LOCATION *
-        <input id="location" required maxlength="120" placeholder="Rawai, Phuket">
-      </label>
-      <label>PRICE IN THB *
-        <input id="price" type="number" min="1" step="1" required>
-      </label>
-      <label id="periodLabel">RENTAL PERIOD
-        <select id="period">
-          <option value="month">Per month</option><option value="week">Per week</option>
-          <option value="day">Per day</option><option value="year">Per year</option>
-        </select>
-      </label>
-      <label>BEDROOMS <input id="beds" type="number" min="0" max="100" value="1"></label>
-      <label>BATHROOMS <input id="baths" type="number" min="0" max="100" value="1"></label>
-      <label>SIZE (SQ. M.) <input id="size" type="number" min="0" step="0.1"></label>
-      <label>CONTACT NAME * <input id="contact" required maxlength="80"></label>
-      <label class="wide">PHONE / WHATSAPP *
-        <input id="phone" required maxlength="40" placeholder="+66…" autocomplete="tel">
-      </label>
-      <label class="wide">DESCRIPTION *
-        <textarea id="description" required minlength="20" maxlength="5000" placeholder="Describe the property, its features and rental or sale terms."></textarea>
-      </label>
-      <label class="wide">AMENITIES
-        <input id="amenities" placeholder="Pool, parking, gym — separate with commas">
-      </label>
-      <label class="wide">PHOTOS — UP TO 10
-        <input id="photos" type="file" accept="image/*" multiple>
-        <span class="muted">Up to 10 photos. Each original photo must be under 15 MB. Images are resized before upload.</span>
-        <div id="preview" class="muted"></div>
-      </label>
-      <button class="green" id="save" type="submit">Publish listing ↗</button>
-    </form>
-    <div id="formMsg" class="msg" role="status"></div>
-  </section>
-
-  <section id="properties">
-    <div class="heading">
-      <div>
-        <div class="kicker">COMMUNITY LISTINGS</div>
-        <h2>Explore properties<span style="color:var(--gold)">.</span></h2>
-        <p class="muted">Tap any listing to open its full details and photo gallery.</p>
-      </div>
-      <span class="muted" id="status">Connecting…</span>
-    </div>
-    <div id="count" class="muted"></div>
-    <div class="grid" id="grid"><p class="muted">Loading properties…</p></div>
-  </section>
-
-  <section class="panel">
-    <div class="kicker">YOUR PROPERTY, YOUR WAY</div>
-    <h2>Have a place to share?</h2>
-    <p class="muted">Sign up, add your property details and publish.</p>
-    <button class="green" id="postBottom" type="button">Post a property ↗</button>
-  </section>
-</main>
-
-<footer>
-  PHUKET PROPERTY MARKET · Community listings across Phuket, Thailand.<br><br>
-  Listings are not independently verified. Confirm ownership, terms, availability and property condition before paying a deposit.
-</footer>
-
-<!-- Full property detail window -->
-<div class="backdrop" id="detailBackdrop" hidden>
-  <section class="detail-modal" role="dialog" aria-modal="true" aria-labelledby="detailTitle">
-    <div class="modal-top">
-      <strong>PROPERTY DETAILS</strong>
-      <button class="close-btn" id="detailClose" type="button" aria-label="Close">×</button>
-    </div>
-    <div class="detail-layout">
-      <div class="gallery">
-        <div class="gallery-main" id="galleryMain"></div>
-        <div class="thumbs" id="thumbs"></div>
-      </div>
-      <div class="detail-content" id="detailContent"></div>
-    </div>
-  </section>
-</div>
-
-<script>
-'use strict';
-
-const $ = id => document.getElementById(id);
-const connected = Boolean(
-  window.SUPABASE_URL &&
-  window.SUPABASE_KEY &&
-  window.supabase
-);
-const db = connected
-  ? window.supabase.createClient(window.SUPABASE_URL, window.SUPABASE_KEY)
-  : null;
-
-let user = null;
-let rows = [];
-let selectedFiles = [];
-let activeListing = null;
-let galleryIndex = 0;
-let previousFocus = null;
-
-const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({
-  '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'
-}[c]));
-
-const money = value => '฿' + Number(value || 0).toLocaleString('en-US', {
-  maximumFractionDigits: 0
+/* EVENT HANDLERS */
+$('grid').addEventListener('click', e => {
+ const del = e.target.closest('[data-delete-id]');
+ if (del) {
+   e.preventDefault();
+   e.stopPropagation();
+   deleteListing(del.dataset.deleteId);
+   return;
+ }
+ if (e.target.closest('[data-no-open]')) return;
+ const card = e.target.closest('[data-listing-id]');
+ if (card) openDetails(card.dataset.listingId);
 });
 
-const phoneDigits = value => String(value || '').replace(/\D/g, '');
+$('grid').addEventListener('keydown', e => {
+ if (e.key !== 'Enter' && e.key !== ' ') return;
+ const card = e.target.closest('[data-listing-id]');
+ if (!card || e.target.closest('a,button')) return;
+ e.preventDefault();
+ openDetails(card.dataset.listingId);
+});
 
-function setMsg(id, text, error = false) {
-  $(id).textContent = text;
-  $(id).className = error ? 'msg err' : 'msg';
+$('detailClose').onclick = closeDetails;
+$('detailBackdrop').addEventListener('click', e => {
+ if (e.target === $('detailBackdrop')) return closeDetails();
+ const arrow = e.target.closest('[data-gallery]');
+ if (arrow && activeListing) {
+   const n = photosOf(activeListing).length;
+   if (n > 1) {
+     galleryIndex += arrow.dataset.gallery === 'next' ? 1 : -1;
+     drawGallery();
+   }
+   return;
+ }
+ const thumb = e.target.closest('[data-thumb]');
+ if (thumb) {
+   galleryIndex = Number(thumb.dataset.thumb);
+   drawGallery();
+ }
+});
+
+document.addEventListener('keydown', e => {
+ if ($('detailBackdrop').hidden || !activeListing) return;
+ if (e.key === 'Escape') closeDetails();
+ const n = photosOf(activeListing).length;
+ if (n > 1 && e.key === 'ArrowRight') { galleryIndex++; drawGallery(); }
+ if (n > 1 && e.key === 'ArrowLeft') { galleryIndex--; drawGallery(); }
+});
+
+$('login').onclick = () => auth('login');
+$('signup').onclick = () => auth('signup');
+$('logout').onclick = async () => {
+ if (!db) return;
+ const r = await db.auth.signOut();
+ if (r.error) return setMsg('accountMsg', r.error.message, true);
+ user = null;
+ updateAuthButtons();
+ setMsg('accountMsg', 'You have logged out.');
+ await refresh();
+};
+
+function showPost() {
+ if (!user) return auth('login');
+ $('postPanel').hidden = false;
+ $('postPanel').scrollIntoView({ behavior: 'smooth' });
 }
+$('post').onclick = showPost;
+$('postBottom').onclick = showPost;
+$('explore').onclick = () => $('properties').scrollIntoView({ behavior: 'smooth' });
+$('search').onsubmit = e => { e.preventDefault(); render(); };
+$('q').oninput = render;
+$('fOffer').onchange = render;
+$('fType').onchange = render;
+$('listingForm').onsubmit = publish;
+$('offer').onchange = () => { $('periodLabel').hidden = $('offer').value === 'sale'; };
 
-function photosOf(listing) {
-  return Array.isArray(listing.image_urls)
-    ? listing.image_urls.filter(url => typeof url === 'string' && /^https?:\/\//i.test(url))
-    : [];
-}
+$('photos').onchange = e => {
+ selectedFiles = Array.from(e.target.files || []).slice(0, 10);
+ $('preview').textContent = selectedFiles.length + ' photo(s) selected.';
+ if ((e.target.files || []).length > 10) setMsg('formMsg', 'Only the first 10 photos will be uploaded.');
+ const preview = document.createElement('div');
+ preview.className = 'preview-grid';
+ selectedFiles.forEach(file => {
+   if (!file.type.startsWith('image/')) return;
+   const img = document.createElement('img');
+   img.alt = file.name;
+   img.src = URL.createObjectURL(file);
+   preview.appendChild(img);
+ });
+ $('preview').appendChild(preview);
+};
 
-function amenitiesOf(listing) {
-  if (Array.isArray(listing.amenities)) return listing.amenities;
-  if (typeof listing.amenities === 'string') return listing.amenities.split(',');
-  return [];
-}
-
-function updateAuthButtons() {
-  $('login').hidden = Boolean(user);
-  $('signup').hidden = Boolean(user);
-  $('logout').hidden = !user;
-}
-
-async function syncUser() {
-  if (!db) return;
-  const {data, error} = await db.auth.getSession();
-  if (error) throw error;
-  user = data.session?.user || null;
-  updateAuthButtons();
-}
-
-async function refresh() {
-  if (!db) {
-    $('status').textContent = 'Needs setup';
-    $('grid').innerHTML =
-      '<div class="empty muted">Supabase is not connected. Check config.js is deployed beside index.html.</div>';
-    return;
-  }
-
-  $('status').textContent = 'Loading…';
-
-  const {data, error} = await db
-    .from('listings')
-    .select('*')
-    .order('created_at', {ascending: false})
-    .limit(500);
-
-  if (error) {
-    $('status').textContent = 'Database error';
-    $('grid').innerHTML = `<div class="empty muted">Could not load listings: ${esc(error.message)}</div>`;
-    $('count').textContent = '';
-    return;
-  }
-
-  rows = data || [];
-  $('status').textContent = 'Live marketplace';
-  render();
-}
-
-function filteredListings() {
-  const query = $('q').value.toLowerCase().trim();
-  const offer = $('fOffer').value;
-  const type = $('fType').value;
-
-  return rows.filter(item => {
-    const searchText = [
-      item.title, item.location, item.description,
-      item.property_type, amenitiesOf(item).join(' ')
-    ].join(' ').toLowerCase();
-
-    return (!offer || item.offer_type === offer) &&
-      (!type || item.property_type === type) &&
-      (!query || searchText.includes(query));
-  });
-}
-
-function render() {
-  const listings = filteredListings();
-
-  $('count').textContent =
-    `${listings.length} ${listings.length === 1 ? 'property' : 'properties'} found`;
-
-  if (!listings.length) {
-    $('grid').innerHTML = '<div class="empty muted">No properties match your search.</div>';
-    return;
-  }
-
-  $('grid').innerHTML = listings.map(item => {
-    const images = photosOf(item);
-    const owner = Boolean(user && String(user.id) === String(item.user_id));
-    const phone = phoneDigits(item.contact_phone);
-
-    const imageHTML = images.length
-      ? `<img loading="lazy" src="${esc(images[0])}" alt="${esc(item.title || 'Property')}">`
-      : '<div class="nophoto">⌂</div>';
-
-    const whatsapp = phone
-      ? `<a class="green" data-no-open href="https://wa.me/${esc(phone)}?text=${encodeURIComponent('Hello, I am interested in ' + (item.title || 'your property') + '. Is it available?')}" target="_blank" rel="noopener noreferrer">WhatsApp ↗</a>`
-      : '';
-
-    const
+(async () => {
+ if (!db) {
+   $('status').textContent = 'Needs setup';
+   $('grid').innerHTML = '<div class="empty muted">Supabase was not detected. Ensure config.js is deployed next to index.html.</div>';
+   return;
+ }
+ try {
+   await syncUser();
+   await refresh();
+ } catch (e) {
+   $('status').textContent = 'Connection error';
+   $('grid').innerHTML = '<div class="empty muted">Connection failed: ' + esc(e.message) + '</div>';
+ }
+ db.auth.onAuthStateChange((event, session) => {
+   user = session?.user || null;
+   updateAuthButtons();
+   if (event === 'SIGNED_IN' || event === 'SIGNED_OUT') refresh();
+ });
+})();
+</script>
+</body>
+   </html>
